@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Data.Common;
 using System.IO;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 
 namespace spaceDiff
 {
@@ -83,6 +85,7 @@ namespace spaceDiff
             else
                 return b;
         }
+
         private bool rangeOverlap(range a, range b)
         {
             if (this.max(a.end, b.end) - this.min(a.start, b.start) < (a.end - a.start) + (b.end - b.start))
@@ -100,6 +103,9 @@ namespace spaceDiff
                 {
                     if (i == y)
                         continue;
+
+                    if (i == iSize)
+                        break;
 
                     // Out of sequence. remove the smaller of the two.
                     if ((dualList[i].oldRange.start > dualList[y].oldRange.start &&
@@ -157,14 +163,15 @@ namespace spaceDiff
             int oldEnd = oldStart;
             int newStart = newbyteReferences[aByte][aNewReference];
             int newEnd = newStart;
-            
+
             // Find the end of the range
-            while (oldFile[oldStart] == newFile[newStart] && (oldStart > 0 && newStart > 0))
+            while ((oldStart > 0 && newStart > 0) && oldFile[oldStart - 1] == newFile[newStart - 1])
             {
                 oldStart--;
                 newStart--;
             }
-            while (oldFile[oldEnd] == newFile[newEnd] && (oldEnd < (oldFile.Length - 1) && (newEnd < newFile.Length - 1)))
+
+            while ((oldEnd < (oldFile.Length - 1) && (newEnd < newFile.Length - 1)) && oldFile[oldEnd + 1] == newFile[newEnd + 1])
             {
                 oldEnd++;
                 newEnd++;
@@ -242,10 +249,10 @@ namespace spaceDiff
             masterRangeList.Sort((x, y) => x.oldRange.start.CompareTo(y.oldRange.start));
 
             // Print it.
-            foreach (dualRange dualRange in masterRangeList)
-            {
-                Console.WriteLine("Old Range: {0} - {1} New Range: {2} - {3} Size: {4}", dualRange.oldRange.start, dualRange.oldRange.end, dualRange.newRange.start, dualRange.newRange.end, dualRange.size);
-            }
+            //foreach (dualRange dualRange in masterRangeList)
+            //{
+            //   Console.WriteLine("Old Range: {0} - {1} New Range: {2} - {3} Size: {4}", dualRange.oldRange.start, dualRange.oldRange.end, dualRange.newRange.start, dualRange.newRange.end, dualRange.size);
+            //}
 
             return true;
         }
@@ -266,9 +273,185 @@ namespace spaceDiff
             oldFile = File.ReadAllBytes(file1);
             newFile = File.ReadAllBytes(file2);
 
+            Console.WriteLine("Loaded {0} bytes from {1} to be compared to {2} bytes from {3}.", oldFile.Length, file1, newFile.Length, file2);
+
             filesLoaded = true;
 
             return true;
+        }
+
+        // Sorry Kayla for party rocking. bwaaw, ba ba ba ba bwaaw.
+        public void displaydeletedData ()
+        {
+            int currentPos = 0;
+            int firstDisplayRange = 0;
+            int maxCol = Console.WindowWidth;
+            int maxRow = Console.WindowHeight;
+            int currentCol = 0;
+            int currentRow = 0;
+            bool displayOld = true;
+            bool quit = false;
+            // Display all the data from oldFile, colouring the background as red for data that isn't part of a range, and black for data that is.
+            while (!quit)
+            {
+                Console.BackgroundColor = ConsoleColor.Black;
+                currentCol = currentRow = 0;
+                if (displayOld)
+                {
+                    for (int i = currentPos; i < oldFile.Length; i++)
+                    {
+                        bool found = false;
+                        foreach (dualRange dualRange in masterRangeList)
+                        {
+                            if (i >= dualRange.oldRange.start && i <= dualRange.oldRange.end)
+                            {
+                                if (firstDisplayRange == 0)
+                                    firstDisplayRange = dualRange.newRange.start;
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                            Console.BackgroundColor = ConsoleColor.Black;
+                        else
+                            Console.BackgroundColor = ConsoleColor.Red;
+
+                        // Write the ASCII character from oldFile
+                        currentCol++;
+                        if (currentCol > maxCol)
+                        {
+                            currentCol = 0;
+                            currentRow++;
+                            Console.WriteLine();
+                        }
+                        else if (oldFile[i] == '\n')
+                        {
+                            currentCol = 0;
+                            currentRow++;
+                            Console.WriteLine();
+                        }
+                        else
+                        {
+                            Console.Write((char)oldFile[i]);
+                        }
+
+                        if (currentRow > maxRow)
+                            break;
+                    }
+                }
+                else
+                {
+                    for (int i = currentPos; i < newFile.Length; i++)
+                    {
+                        bool found = false;
+                        foreach (dualRange dualRange in masterRangeList)
+                        {
+                            if (i >= dualRange.newRange.start && i <= dualRange.newRange.end)
+                            {
+                                if (firstDisplayRange == 0)
+                                    firstDisplayRange = dualRange.oldRange.start;
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                            Console.BackgroundColor = ConsoleColor.Black;
+                        else
+                            Console.BackgroundColor = ConsoleColor.Green;
+
+                        // Write the ASCII character from oldFile
+                        currentCol++;
+                        if (currentCol >= maxCol)
+                        {
+                            currentCol = 0;
+                            currentRow++;
+                            Console.WriteLine();
+                        }
+                        else if (newFile[i] == '\n')
+                        {
+                            currentCol = 0;
+                            currentRow++;
+                            Console.WriteLine();
+                        }
+                        else
+                        {
+                            Console.Write((char)newFile[i]);
+                        }
+
+                        if (currentRow >= maxRow)
+                            break;
+                    }
+                }
+
+                {
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            while (displayOld)
+                            {
+                                if (currentPos > 0)
+                                    currentPos--;
+
+                                while (oldFile[currentPos] != '\n' && currentPos > 0)
+                                    currentPos--;
+
+                                break;
+                            }
+                            while (!displayOld)
+                            {
+                                if (currentPos > 0)
+                                    currentPos--;
+
+                                while (newFile[currentPos] != '\n' && currentPos > 0)
+                                    currentPos--;
+
+                                break;
+                            }
+                            break;
+                        case ConsoleKey.DownArrow:
+                            while (displayOld)
+                            {
+                                while (oldFile[currentPos] != '\n' && currentPos < oldFile.Length - 1)
+                                    currentPos++;
+
+                                currentPos++;
+
+                                break;
+                            }
+                            while (!displayOld)
+                            {
+                                while (newFile[currentPos] != '\n' && currentPos < newFile.Length - 1)
+                                    currentPos++;
+
+                                currentPos++;
+
+                                break;
+                            }
+
+                            break;
+                        case ConsoleKey.D:
+                            displayOld = true;
+                            currentPos = firstDisplayRange;
+                            break;
+                        case ConsoleKey.I:
+                            displayOld = false;
+                            currentPos = firstDisplayRange;
+                            break;
+                        case ConsoleKey.Q:
+                            quit = true;
+                            break;
+                        default:
+                            break;
+
+                    }
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    firstDisplayRange = 0;
+
+                }
+            }
         }
 
         public spaceDiff()
