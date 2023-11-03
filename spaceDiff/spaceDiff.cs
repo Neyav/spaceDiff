@@ -153,10 +153,10 @@ namespace spaceDiff
             dualRange dualRange = new dualRange();
             range oldRange = new range();
             range newRange = new range();
-            int oldStart = aOldReference;
-            int oldEnd = aOldReference;
-            int newStart = aNewReference;
-            int newEnd = aNewReference;
+            int oldStart = oldbyteReferences[aByte][aOldReference];
+            int oldEnd = oldStart;
+            int newStart = newbyteReferences[aByte][aNewReference];
+            int newEnd = newStart;
             
             // Find the end of the range
             while (oldFile[oldStart] == newFile[newStart] && (oldStart > 0 && newStart > 0))
@@ -164,7 +164,7 @@ namespace spaceDiff
                 oldStart--;
                 newStart--;
             }
-            while (oldFile[oldEnd] == newFile[newEnd] && (oldEnd < oldFile.Length && newEnd < newFile.Length))
+            while (oldFile[oldEnd] == newFile[newEnd] && (oldEnd < (oldFile.Length - 1) && (newEnd < newFile.Length - 1)))
             {
                 oldEnd++;
                 newEnd++;
@@ -196,7 +196,7 @@ namespace spaceDiff
                 }
             }
 
-            //pruneRange(ref rangeList);
+            pruneRange(ref rangeList);
 
             // Add this range list to the master list now.
             masterRangeList.AddRange(rangeList);
@@ -236,7 +236,7 @@ namespace spaceDiff
             Console.WriteLine("Found {0} ranges", masterRangeList.Count());
 
             // Final prune of the master list, just to make sure.
-           // pruneRange(ref masterRangeList);
+            pruneRange(ref masterRangeList);
 
             // Sort it.
             masterRangeList.Sort((x, y) => x.oldRange.start.CompareTo(y.oldRange.start));
