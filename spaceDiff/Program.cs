@@ -9,7 +9,13 @@
         Console.WriteLine("letters in syncronize, nevermind swim like it. Written by: Christopher Laverdure");
         Console.WriteLine("=----------------------------------------------------------------------------------=");
 
-        spaceDiff.loadFilesforComparsion("fair.c", "fair1.c");
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: spaceDiff.exe <file1> <file2>");
+            return 1;
+        }
+
+        spaceDiff.loadFilesforComparsion(args[0], args[1]);
 
         spaceDiff.beginAnalysis();
 

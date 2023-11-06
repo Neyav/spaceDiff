@@ -197,7 +197,7 @@ namespace spaceDiff
                 dualRange dualRange = this.calculateSizeOfRange(aByte, aOldReference, i);
                 
                 // We only care about ranges that are 5 bytes or more because they are the only ones that will save space.
-                if (dualRange.size > 5)
+                if (dualRange.size > 1)
                 {
                     rangeList.Add(dualRange);
                 }
@@ -227,12 +227,12 @@ namespace spaceDiff
             
             for (int i = 0; i < oldFile.Length; i++)
             {
-                oldbyteReferences[oldFile[i] + 128].Add(i);
+                oldbyteReferences[oldFile[i]].Add(i);
             }
             
             for (int i = 0; i < newFile.Length; i++)
             {
-                newbyteReferences[newFile[i] + 128].Add(i);
+                newbyteReferences[newFile[i]].Add(i);
             }
 
             for (int i = 0; i < 256; i++)
@@ -333,7 +333,10 @@ namespace spaceDiff
                         }
                         else
                         {
-                            Console.Write((char)oldFile[i]);
+                            if (oldFile[i] > 31 && oldFile[i] < 127)
+                                Console.Write((char)oldFile[i]);
+                            else // Write the hex for the byte
+                                Console.Write("[{0:X2}]", oldFile[i]);
                         }
 
                         if (currentRow > maxRow)
