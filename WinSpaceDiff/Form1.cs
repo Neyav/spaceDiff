@@ -15,6 +15,12 @@ namespace WinSpaceDiff
         private void Form1_Resize(object sender, EventArgs e)
         {
             richTextBox1.Width = this.Width / 2;
+            label2.Left = this.Width / 2;
+            textBox1.Width = this.Width / 2 - 25;
+            textBox2.Width = this.Width / 2 - 25;
+            textBox2.Left = this.Width / 2;
+            button1.Left = this.Width / 2 - 165;
+            button2.Left = this.Width - 165;
 
         }
 
