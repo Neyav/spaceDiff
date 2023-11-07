@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
+            button3 = new Button();
             button2 = new Button();
             button1 = new Button();
             textBox2 = new TextBox();
@@ -45,6 +46,7 @@
             // panel1
             // 
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel1.Controls.Add(button3);
             panel1.Controls.Add(button2);
             panel1.Controls.Add(button1);
             panel1.Controls.Add(textBox2);
@@ -57,6 +59,17 @@
             panel1.Size = new Size(584, 80);
             panel1.TabIndex = 0;
             // 
+            // button3
+            // 
+            button3.Enabled = false;
+            button3.Location = new Point(252, 12);
+            button3.Name = "button3";
+            button3.Size = new Size(66, 23);
+            button3.TabIndex = 6;
+            button3.Text = "Compare";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
             // button2
             // 
             button2.Location = new Point(420, 41);
@@ -65,6 +78,7 @@
             button2.TabIndex = 5;
             button2.Text = "Choose File";
             button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // button1
             // 
@@ -74,14 +88,15 @@
             button1.TabIndex = 4;
             button1.Text = "Choose File";
             button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // textBox2
             // 
             textBox2.Enabled = false;
-            textBox2.Location = new Point(285, 12);
+            textBox2.Location = new Point(324, 12);
             textBox2.Name = "textBox2";
             textBox2.ReadOnly = true;
-            textBox2.Size = new Size(280, 23);
+            textBox2.Size = new Size(241, 23);
             textBox2.TabIndex = 3;
             textBox2.Text = "New Version Location";
             // 
@@ -91,7 +106,7 @@
             textBox1.Location = new Point(12, 12);
             textBox1.Name = "textBox1";
             textBox1.ReadOnly = true;
-            textBox1.Size = new Size(250, 23);
+            textBox1.Size = new Size(220, 23);
             textBox1.TabIndex = 2;
             textBox1.Text = "Original Document Location";
             // 
@@ -135,7 +150,8 @@
             richTextBox2.ReadOnly = true;
             richTextBox2.Size = new Size(299, 381);
             richTextBox2.TabIndex = 1;
-            richTextBox2.Text = "Test text!!!!";
+            richTextBox2.Text = "";
+            richTextBox2.WordWrap = false;
             // 
             // richTextBox1
             // 
@@ -148,6 +164,7 @@
             richTextBox1.Size = new Size(285, 381);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
+            richTextBox1.WordWrap = false;
             richTextBox1.TextChanged += richTextBox1_TextChanged;
             // 
             // Form1
@@ -159,7 +176,7 @@
             Controls.Add(panel1);
             MinimumSize = new Size(600, 500);
             Name = "Form1";
-            Text = "Form1";
+            Text = "WinSpaceDiff";
             Load += Form1_Load;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -179,5 +196,6 @@
         private TextBox textBox2;
         private Button button2;
         private Button button1;
+        private Button button3;
     }
 }
